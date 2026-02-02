@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TheGeorgeBoy Growth DB</title>
+    <style>
+        :root {
+            --color-bg: #F5FF00;
+            --color-fg: #000000;
+            --color-surface: #F5F5F0;
+            --color-success: #00C853;
+            --color-warning: #FF9800;
+            --color-danger: #F44336;
+            --color-ig: #E1306C;
+            --color-tiktok: #00F2EA;
+            --border-width: 1px;
+            --spacing-unit: 20px;
+            --font-main: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            --radius-pill: 100px;
+        }
+
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--color-bg);
+            color: var(--color-fg);
+            font-family: var(--font-main);
+            font-size: 14px;
+            line-height: 1.4;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .mono-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.02em; opacity: 0.9; }
+        .heading-xl { font-size: 64px; font-weight: 400; letter-spacing: -0.04em; line-height: 0.9; margin: 0; }
+        .heading-md { font-size: 24px; font-weight: 400; letter-spacing: -0.02em; margin: 0; }
+        .heading-sm { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+
+        /* Top Navigation */
+        .top-bar {
+            height: 48px;
+            border-bottom: var(--border-width) solid var(--color-fg);
+            display: flex;
+            align-items: center;
+            padding: 0 var(--spacing-unit);
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .nav-links { display: flex; gap: 20px; }
+
+        .nav-item {
+            cursor: pointer;
+            padding: 4px 12px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .nav-item:hover { background: rgba(0,0,0,0.1); }
+        .nav-item.active { background: black; color: var(--color-bg); }
+
+        .toggle-group { display: flex; gap: 12px; align-items: center; }
+
+        /* Layout */
+        .app-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            height: calc(100vh - 48px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            border-right: var(--border-width) solid var(--color-fg);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .stat-section { border: 1px solid black; padding: 12px; margin-bottom: 8px; }
+        .stat-section-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .stat-section-header .icon { font-size: 18px; }
+        .stat-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed rgba(0,0,0,0.2); }
+        .stat-row:last-child { border-bottom: none; }
+        .stat-value { font-weight: 600; }
+        .stat-value.editable { cursor: pointer; border-bottom: 1px dashed black; }
+        .stat-value.editable:hover { background: rgba(0,0,0,0.1); }
+
+        .platform-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 9px;
+            font-weight: 700;
+            border-radius: 3px;
+        }
+        .platform-ig { background: var(--color-ig); color: white; }
+        .platform-tiktok { background: var(--color-tiktok); color: black; }
+
+        .tape-sticker {
+            background: var(--color-fg);
+            color: var(--color-bg);
+            padding: 12px;
+            display: inline-block;
+            transform: rotate(-2deg);
+            position: relative;
+            text-align: center;
+        }
+        .tape-sticker::before {
+            content: '';
+            position: absolute;
+            background: var(--color-bg);
+            width: 8px; height: 20px;
+            top: -10px; left: 50%;
+            border: 1px solid black;
+            transform: translateX(-50%);
+        }
+
+        .quick-links { display: flex; flex-direction: column; gap: 6px; }
+        .quick-link {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 10px;
+            border: 1px solid black;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: black;
+            font-size: 11px;
+        }
+        .quick-link:hover { background: black; color: var(--color-bg); }
+
+        /* Content Area */
+        .content-area {
+            background-color: var(--color-bg);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .page-view { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+        .page-view.active { display: flex; }
+
+        /* Action Cards */
+        .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 15px; }
+
+        .action-card {
+            border: 1px solid black;
+            padding: 14px;
+            position: relative;
+            transition: all 0.2s;
+            cursor: pointer;
+            background: transparent;
+        }
+        .action-card:hover { background: rgba(0,0,0,0.05); transform: translateY(-2px); }
+        .action-card.running { background: black; color: var(--color-bg); }
+        .action-card::before { content: '↗'; position: absolute; top: 8px; right: 8px; font-size: 16px; }
+        .action-card.running::before { content: '◉'; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .card-label { display: block; margin-bottom: 6px; font-size: 9px; text-transform: uppercase; }
+
+        /* Data Panel - KEY FIX: overflow-y auto on panel-body */
+        .data-panel {
+            background-color: var(--color-surface);
+            border: var(--border-width) solid var(--color-fg);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .panel-tabs { display: flex; border-bottom: 1px solid #ddd; flex-shrink: 0; }
+        .panel-tab {
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 600;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .panel-tab:hover { background: rgba(0,0,0,0.03); }
+        .panel-tab.active { border-bottom-color: black; background: rgba(0,0,0,0.05); }
+
+        .tab-content { display: none; flex-direction: column; flex: 1; overflow: hidden; min-height: 0; }
+        .tab-content.active { display: flex; }
+
+        .column-headers {
+            display: grid;
+            grid-template-columns: 35px 2fr 1.5fr 2fr 1fr 70px;
+            padding: 8px 16px;
+            background: #EEEEEA;
+            border-bottom: 1px solid #ddd;
+            flex-shrink: 0;
+        }
+
+        /* THIS IS THE KEY FIX - panel-body scrolls */
+        .panel-body {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .data-row {
+            display: grid;
+            grid-template-columns: 35px 2fr 1.5fr 2fr 1fr 70px;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            align-items: center;
+            transition: background 0.1s;
+        }
+        .data-row:hover { background-color: #ECECE8; }
+        .col-idx { font-family: monospace; opacity: 0.5; font-size: 12px; }
+        .col-main { font-weight: 600; font-size: 14px; }
+        .col-main a { color: inherit; text-decoration: none; }
+        .col-main a:hover { text-decoration: underline; }
+        .col-meta { font-size: 12px; opacity: 0.7; }
+        .col-followers { font-weight: 500; font-size: 12px; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 6px;
+            border: 1px solid black;
+            border-radius: 3px;
+            font-size: 9px;
+            text-transform: uppercase;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .status-badge:hover { transform: scale(1.05); }
+        .status-submitted { background: var(--color-success); color: white; border-color: var(--color-success); }
+        .status-pending { background: transparent; }
+        .status-featured { background: gold; color: black; border-color: gold; }
+        .status-engaged { background: #2196F3; color: white; border-color: #2196F3; }
+
+        .row-actions { display: flex; gap: 6px; opacity: 0; transition: opacity 0.2s; }
+        .data-row:hover .row-actions { opacity: 1; }
+        .row-btn {
+            width: 24px; height: 24px;
+            border: 1px solid black;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .row-btn:hover { background: black; color: var(--color-bg); }
+
+        .panel-footer {
+            padding: 8px 16px;
+            border-top: 1px solid black;
+            font-size: 10px;
+            display: flex;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        /* Hashtags */
+        .copy-all-btn {
+            padding: 10px 16px;
+            border-bottom: 1px solid black;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .hashtag-category { padding: 16px; border-bottom: 1px solid rgba(0,0,0,0.1); }
+        .hashtag-category h4 { margin: 0 0 10px 0; font-size: 11px; text-transform: uppercase; }
+        .hashtag-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+        .hashtag-tag {
+            padding: 4px 10px;
+            border: 1px solid black;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .hashtag-tag:hover { background: black; color: var(--color-bg); }
+        .hashtag-tag.copied { background: var(--color-success); color: white; border-color: var(--color-success); }
+
+        .idea-card {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .idea-card:hover { background: #ECECE8; }
+        .idea-type {
+            font-size: 9px;
+            text-transform: uppercase;
+            padding: 3px 6px;
+            background: black;
+            color: var(--color-bg);
+            margin-right: 10px;
+        }
+
+        /* Analytics Page */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .analytics-card {
+            background: var(--color-surface);
+            border: 1px solid black;
+            padding: 20px;
+        }
+        .analytics-card .value {
+            font-size: 36px;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+        }
+        .analytics-card .label {
+            font-size: 10px;
+            text-transform: uppercase;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+        .analytics-card .change {
+            font-size: 11px;
+            margin-top: 8px;
+            padding: 2px 6px;
+            display: inline-block;
+        }
+        .change.positive { background: #E8F5E9; color: #2E7D32; }
+        .change.negative { background: #FFEBEE; color: #C62828; }
+
+        .chart-placeholder {
+            background: var(--color-surface);
+            border: 1px solid black;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .chart-placeholder .bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 100px;
+        }
+        .chart-placeholder .bar {
+            width: 30px;
+            background: black;
+            transition: height 0.3s;
+        }
+
+        .activity-log {
+            background: var(--color-surface);
+            border: 1px solid black;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .activity-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+        }
+        .activity-item:hover { background: #ECECE8; }
+        .activity-time { font-size: 11px; opacity: 0.6; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--color-surface);
+            border: 2px solid black;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal h2 { margin: 0 0 16px 0; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid black;
+            font-size: 13px;
+            font-family: inherit;
+        }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        .btn {
+            padding: 10px 20px;
+            border: 1px solid black;
+            background: transparent;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn:hover { background: black; color: var(--color-bg); }
+        .btn-primary { background: black; color: var(--color-bg); }
+        .btn-sm { padding: 6px 12px; font-size: 11px; }
+
+        /* Toast */
+        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
+        .toast { background: black; color: var(--color-bg); padding: 10px 16px; border: 1px solid var(--color-bg); animation: slideIn 0.3s ease; font-size: 13px; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: black; }
+
+        /* Add Account Button in tabs */
+        .add-row-btn {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #666;
+        }
+        .add-row-btn:hover { background: #ECECE8; color: black; }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="top-bar">
+        <div class="nav-links">
+            <div style="font-weight:700; margin-right:20px;">■ TGB DATABASE</div>
+            <div class="nav-item active mono-label" data-page="dash">Dashboard</div>
+            <div class="nav-item mono-label" data-page="analytics">Analytics</div>
+        </div>
+        <div class="toggle-group">
+            <a href="https://instagram.com/the.georgeboy" target="_blank" class="quick-link" style="height:24px; padding: 0 10px; background: var(--color-ig); color: white; border-color: var(--color-ig);">IG ↗</a>
+            <a href="https://tiktok.com/@thegeorgeboy" target="_blank" class="quick-link" style="height:24px; padding: 0 10px; background: var(--color-tiktok); color: black; border-color: var(--color-tiktok);">TikTok ↗</a>
+        </div>
+    </nav>
+
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="tape-sticker" style="align-self: center;">
+                <div style="font-size:14px; font-weight:700;">GEORGE BOY</div>
+                <div style="font-size:9px; margin-top:4px;">Growth DB v3.0</div>
+            </div>
+
+            <!-- Instagram Stats -->
+            <div class="stat-section">
+                <div class="stat-section-header">
+                    <span class="platform-badge platform-ig">IG</span>
+                    <span class="mono-label">Instagram</span>
+                </div>
+                <div class="stat-row">
+                    <span class="mono-label">Followers</span>
+                    <span class="stat-value editable" id="igFollowers" onclick="editStat('ig_followers')">—</span>
+                </div>
+                <div class="stat-row">
+                    <span class="mono-label">Avg Likes</span>
+                    <span class="stat-value editable" id="igLikes" onclick="editStat('ig_likes')">—</span>
+                </div>
+                <div class="stat-row">
+                    <span class="mono-label">Engagement</span>
+                    <span class="stat-value" id="igEngagement">—</span>
+                </div>
+            </div>
+
+            <!-- TikTok Stats -->
+            <div class="stat-section">
+                <div class="stat-section-header">
+                    <span class="platform-badge platform-tiktok">TT</span>
+                    <span class="mono-label">TikTok</span>
+                </div>
+                <div class="stat-row">
+                    <span class="mono-label">Followers</span>
+                    <span class="stat-value editable" id="ttFollowers" onclick="editStat('tt_followers')">—</span>
+                </div>
+                <div class="stat-row">
+                    <span class="mono-label">Avg Views</span>
+                    <span class="stat-value editable" id="ttViews" onclick="editStat('tt_views')">—</span>
+                </div>
+                <div class="stat-row">
+                    <span class="mono-label">Avg Likes</span>
+                    <span class="stat-value editable" id="ttLikes" onclick="editStat('tt_likes')">—</span>
+                </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="stat-section">
+                <div class="stat-section-header">
+                    <span class="mono-label">Progress</span>
+                </div>
+                <div class="stat-row">
+                    <span class="mono-label">Submissions</span>
+                    <span class="stat-value" id="statSubmissions">0/9</span>
+                </div>
+                <div class="stat-row">
+                    <span class="mono-label">Engaged</span>
+                    <span class="stat-value" id="statEngaged">0/15</span>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="quick-links">
+                <div class="mono-label" style="margin-bottom:6px;">Quick Links</div>
+                <a href="https://discord.com/invite/dogs-of-discord-social-animals-giveaways-emojis-690833081912786964" target="_blank" class="quick-link">💬 Dogs of Discord</a>
+                <a href="https://living.greatpetcare.com/submit-your-pics-and-videos/" target="_blank" class="quick-link">📸 Submit to DOI</a>
+                <a href="https://ig-links.weratedogs.com" target="_blank" class="quick-link">⭐ WeRateDogs</a>
+            </div>
+
+            <button class="btn" style="width:100%; margin-top:auto;" onclick="exportData()">Export Data ↓</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content-area">
+            <!-- Dashboard Page -->
+            <div class="page-view active" id="page-dash">
+                <div style="margin-bottom: 15px;">
+                    <h1 class="heading-md">QUICK ACTIONS</h1>
+                </div>
+                <div class="action-grid">
+                    <div class="action-card" id="actionEngage" onclick="showToast('Tell Claude: Run IG engagement session')">
+                        <span class="card-label">(01) IG Engage</span>
+                        <strong>Run Session</strong>
+                        <div class="mono-label" style="margin-top:4px; opacity:0.6;">Mid-tier accounts</div>
+                    </div>
+                    <div class="action-card" onclick="showToast('Tell Claude: Run TikTok engagement session')">
+                        <span class="card-label">(02) TT Engage</span>
+                        <strong>TikTok Session</strong>
+                        <div class="mono-label" style="margin-top:4px; opacity:0.6;">Dog content</div>
+                    </div>
+                    <div class="action-card" onclick="copyAllHashtags()">
+                        <span class="card-label">(03) Copy</span>
+                        <strong>All Hashtags</strong>
+                        <div class="mono-label" style="margin-top:4px; opacity:0.6;">30 IG tags</div>
+                    </div>
+                    <div class="action-card" onclick="openRandomIdea()">
+                        <span class="card-label">(04) Inspire</span>
+                        <strong>Content Idea</strong>
+                        <div class="mono-label" style="margin-top:4px; opacity:0.6;">Random pick</div>
+                    </div>
+                </div>
+
+                <div class="data-panel">
+                    <div class="panel-tabs">
+                        <div class="panel-tab active" data-tab="features">Feature Pages</div>
+                        <div class="panel-tab" data-tab="midtier">Mid-Tier IG</div>
+                        <div class="panel-tab" data-tab="tiktok-accounts">TikTok Accounts</div>
+                        <div class="panel-tab" data-tab="hashtags">Hashtags</div>
+                        <div class="panel-tab" data-tab="content">Content Ideas</div>
+                    </div>
+
+                    <!-- Feature Pages -->
+                    <div class="tab-content active" id="tab-features">
+                        <div class="column-headers">
+                            <span class="mono-label">#</span>
+                            <span class="mono-label">Account</span>
+                            <span class="mono-label">Followers</span>
+                            <span class="mono-label">Method</span>
+                            <span class="mono-label">Status</span>
+                            <span></span>
+                        </div>
+                        <div class="panel-body" id="featuresList"></div>
+                    </div>
+
+                    <!-- Mid-Tier IG -->
+                    <div class="tab-content" id="tab-midtier">
+                        <div class="column-headers">
+                            <span class="mono-label">#</span>
+                            <span class="mono-label">Account</span>
+                            <span class="mono-label">Followers</span>
+                            <span class="mono-label">Niche</span>
+                            <span class="mono-label">Status</span>
+                            <span></span>
+                        </div>
+                        <div class="panel-body" id="midtierList"></div>
+                    </div>
+
+                    <!-- TikTok Accounts -->
+                    <div class="tab-content" id="tab-tiktok-accounts">
+                        <div class="column-headers">
+                            <span class="mono-label">#</span>
+                            <span class="mono-label">Account</span>
+                            <span class="mono-label">Followers</span>
+                            <span class="mono-label">Niche</span>
+                            <span class="mono-label">Status</span>
+                            <span></span>
+                        </div>
+                        <div class="panel-body" id="tiktokAccountsList"></div>
+                    </div>
+
+                    <!-- Hashtags -->
+                    <div class="tab-content" id="tab-hashtags">
+                        <div class="copy-all-btn">
+                            <span class="mono-label">Click to copy • IG + TikTok tags</span>
+                            <button class="btn btn-sm" onclick="copyAllHashtags()">Copy IG (30)</button>
+                            <button class="btn btn-sm" onclick="copyTikTokHashtags()">Copy TikTok</button>
+                        </div>
+                        <div class="panel-body" id="hashtagsList"></div>
+                    </div>
+
+                    <!-- Content Ideas -->
+                    <div class="tab-content" id="tab-content">
+                        <div class="copy-all-btn">
+                            <span class="mono-label">Content ideas for George</span>
+                            <button class="btn btn-sm" onclick="openRandomIdea()">🎲 Random</button>
+                        </div>
+                        <div class="panel-body" id="contentList"></div>
+                    </div>
+
+                    <div class="panel-footer">
+                        <span id="recordCount">Showing records</span>
+                        <span>Database v3.0 • Feb 2025</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Page -->
+            <div class="page-view" id="page-analytics">
+                <div style="margin-bottom: 15px;">
+                    <h1 class="heading-md">ANALYTICS</h1>
+                </div>
+
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <div class="value" id="totalFollowers">—</div>
+                        <div class="label">Total Followers</div>
+                        <div class="change positive">↑ Combined IG + TT</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="value" id="totalEngaged">0</div>
+                        <div class="label">Accounts Engaged</div>
+                        <div class="change positive">↑ This week</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="value" id="totalSubmissions">0</div>
+                        <div class="label">Feature Submissions</div>
+                        <div class="change">Pending review</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="value" id="engagementRate">—</div>
+                        <div class="label">Avg Engagement</div>
+                        <div class="change positive">↑ Above average</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; flex: 1; min-height: 0;">
+                    <div class="chart-placeholder">
+                        <div class="mono-label">Follower Growth (Simulated)</div>
+                        <div class="bars">
+                            <div class="bar" style="height: 40px;"></div>
+                            <div class="bar" style="height: 55px;"></div>
+                            <div class="bar" style="height: 50px;"></div>
+                            <div class="bar" style="height: 70px;"></div>
+                            <div class="bar" style="height: 65px;"></div>
+                            <div class="bar" style="height: 85px;"></div>
+                            <div class="bar" style="height: 100px;"></div>
+                        </div>
+                        <div class="mono-label" style="font-size: 9px;">Mon Tue Wed Thu Fri Sat Sun</div>
+                    </div>
+
+                    <div class="activity-log">
+                        <div style="padding: 12px 16px; border-bottom: 1px solid black; background: #EEEEEA;">
+                            <span class="mono-label">Recent Activity</span>
+                        </div>
+                        <div id="activityLog">
+                            <div class="activity-item">
+                                <span>Engaged @novathegoldengal on IG</span>
+                                <span class="activity-time">Today</span>
+                            </div>
+                            <div class="activity-item">
+                                <span>Commented on @wally.meets.world TikTok</span>
+                                <span class="activity-time">Today</span>
+                            </div>
+                            <div class="activity-item">
+                                <span>Commented on @sunshine_state_lou TikTok</span>
+                                <span class="activity-time">Today</span>
+                            </div>
+                            <div class="activity-item">
+                                <span>Added to mid-tier list</span>
+                                <span class="activity-time">Today</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h2 id="modalTitle">Add Account</h2>
+            <form id="modalForm">
+                <div class="form-group">
+                    <label>Platform</label>
+                    <select id="inputPlatform">
+                        <option value="instagram">Instagram</option>
+                        <option value="tiktok">TikTok</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Account Handle</label>
+                    <input type="text" id="inputAccount" placeholder="@username" required>
+                </div>
+                <div class="form-group">
+                    <label>Followers</label>
+                    <input type="text" id="inputFollowers" placeholder="e.g. 50K">
+                </div>
+                <div class="form-group">
+                    <label>Niche</label>
+                    <input type="text" id="inputNiche" placeholder="e.g. Golden Retriever">
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="inputNotes" placeholder="Why engage, submission method, etc."></textarea>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:16px;">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ============ DATA ============
+        const DATA = {
+            features: [
+                { account: '@thedodo', followers: '12.9M', method: 'Submit highlight in bio', status: 'pending', link: 'https://instagram.com/thedodo' },
+                { account: '@dogsofinstagram', followers: '5.5M', method: 'Submit form', status: 'pending', link: 'https://living.greatpetcare.com/submit-your-pics-and-videos/' },
+                { account: '@weratedogs', followers: '5.2M', method: 'Submit via Link', status: 'pending', link: 'https://ig-links.weratedogs.com' },
+                { account: '@barked', followers: '3.8M', method: 'Tag @barked + #barked', status: 'pending', link: 'https://instagram.com/barked' },
+                { account: '@dogsofinstaworld', followers: '2.1M', method: 'Tag + DM for feature', status: 'pending', link: 'https://instagram.com/dogsofinstaworld' },
+                { account: '@puppystagrams', followers: '1.2M', method: 'Tag #puppystagrams', status: 'pending', link: 'https://instagram.com/puppystagrams' },
+                { account: '@mydogiscutest', followers: '674K', method: 'Tag #mydogiscutest', status: 'pending', link: 'https://instagram.com/mydogiscutest' },
+                { account: '@cutestpuppiesforyou', followers: '584K', method: 'Form + Follow', status: 'pending', link: 'https://instagram.com/cutestpuppiesforyou' },
+                { account: '@muttsofinstagram', followers: '21.3K', method: 'Tag - perfect for mixed breeds!', status: 'pending', link: 'https://instagram.com/muttsofinstagram' },
+                { account: '@rescuedogsofinstagram', followers: '315K', method: 'Tag - George is a rescue!', status: 'pending', link: 'https://instagram.com/rescuedogsofinstagram' },
+                { account: '@dogsofla', followers: '89K', method: 'Tag #dogsofla - local!', status: 'pending', link: 'https://instagram.com/dogsofla' },
+                { account: '@labellefoundation', followers: '45K', method: 'Tag - George\'s rescue org!', status: 'pending', link: 'https://instagram.com/labellefoundation' },
+            ],
+            midtier: [
+                { account: '@bugthebrusselsgriffon', followers: '31K', niche: 'Brussels Griffon', status: 'pending', notes: 'Looks like George! Same scruffy vibe' },
+                { account: '@digbyvanwinkle', followers: '207K', niche: 'Brussels Griffon', status: 'pending', notes: 'OG famous griffon, great engagement' },
+                { account: '@tunameltsmyheart', followers: '1.9M', niche: 'Chiweenie mix', status: 'pending', notes: 'Proof unique/weird dogs go viral' },
+                { account: '@wicketaffenpinscher', followers: '15K', niche: 'Affenpinscher', status: 'pending', notes: 'Same monkey-dog look as George' },
+                { account: '@marniethedog', followers: '1.8M', niche: 'Shih Tzu', status: 'pending', notes: 'Scruffy senior dog, massive following' },
+                { account: '@maboroshishiba', followers: '500K', niche: 'Expressive Shiba', status: 'pending', notes: 'Weird face expressions like George' },
+                { account: '@popeythefoodie', followers: '425K', niche: 'Brussels Griffon', status: 'pending', notes: 'Another griffon, foodie content' },
+                { account: '@daily.otto', followers: '89K', niche: 'Affenpinscher mix', status: 'pending', notes: 'Scruffy dark dog similar to George' },
+                { account: '@chewythepompomboy', followers: '156K', niche: 'Pomeranian', status: 'pending', notes: 'Small fluffy, good engagement' },
+                { account: '@monchi_the_dog', followers: '75K', niche: 'Scruffy mutt', status: 'pending', notes: 'Mixed breed success story' },
+            ],
+            tiktokAccounts: [
+                { account: '@jessronagrooming', followers: '530K+', niche: 'Pro groomer - Affenpinschers!', status: 'pending', notes: 'Bug Mushroom the affenpinscher' },
+                { account: '@wicketaffenpinscher', followers: '20K+', niche: 'Affenpinscher', status: 'pending', notes: 'Same breed look as George' },
+                { account: '@gaborthehairy', followers: '150K+', niche: 'Brussels Griffon', status: 'pending', notes: 'Scruffy griffon content' },
+                { account: '@chewbaccathebrussels', followers: '45K+', niche: 'Brussels Griffon', status: 'pending', notes: 'Star Wars vibes like George' },
+                { account: '@thelifeofpikelet', followers: '300K+', niche: 'Rescue mutt', status: 'pending', notes: 'Scruffy rescue, great community' },
+                { account: '@scruffyjackthedog', followers: '80K+', niche: 'Scruffy terrier mix', status: 'pending', notes: 'Similar vibe, wire-haired' },
+            ],
+            hashtags: {
+                'George Breeds': ['#affenpinscher', '#brusselsgriffon', '#monkeydog', '#ewokdog', '#scruffydog', '#wirehairdog', '#grumpyface', '#weirddog'],
+                'Breed Mix': ['#mixedbreeddog', '#muttsofinstagram', '#muttnation', '#rescuemix', '#heinz57dog', '#mysterybreed', '#dnamystery'],
+                'Scruffy Vibes': ['#scruffypup', '#messydog', '#bedheaddog', '#fluffydog', '#shaggypup', '#uncomfortablylongeyecontact'],
+                'General': ['#dogsofinstagram', '#dogstagram', '#puppiesofinstagram', '#doglife', '#doglovers', '#dogoftheday', '#petstagram'],
+                'Feature': ['#dogfeatures', '#featuremydog', '#mydogiscutest', '#thedodo', '#weratedogs']
+            },
+            tiktokHashtags: ['#DogsOfTikTok', '#DogTikTok', '#PetTok', '#FunnyDogs', '#DogLover', '#PetLife', '#ViralPet', '#WeirdDog', '#FunnyFace', '#MixedBreed', '#DogMom', '#PuppyLove'],
+            contentIdeas: [
+                { type: 'Post', idea: '"Guess my breed mix!" carousel with reveal' },
+                { type: 'Post', idea: 'DNA test results reveal (if you have one)' },
+                { type: 'Post', idea: 'Before/after grooming transformation' },
+                { type: 'Reel', idea: 'George\'s morning routine' },
+                { type: 'Reel', idea: 'POV: You\'re a treat' },
+                { type: 'Reel', idea: 'George rating his toys (disappointed face)' },
+                { type: 'Reel', idea: 'Funny face compilation' },
+                { type: 'Reel', idea: '"When the doorbell rings" chaos' },
+                { type: 'Reel', idea: '"Things my dog judges me for"' },
+                { type: 'Reel', idea: 'George vs the vacuum cleaner' },
+                { type: 'TikTok', idea: '"What breed is this?" (wrong answers only)' },
+                { type: 'TikTok', idea: '"My dog looks like [celebrity/character]"' },
+                { type: 'TikTok', idea: '"Dogs with human expressions" trend' },
+                { type: 'TikTok', idea: '"Day in the life of a gremlin"' },
+                { type: 'TikTok', idea: '"He\'s not ugly he\'s ✨distinctive✨"' },
+                { type: 'TikTok', idea: 'George reacting to other dogs on screen' },
+                { type: 'TikTok', idea: '"POV: you made eye contact with me"' },
+                { type: 'TikTok', idea: 'Sunbathing time lapse (potato roasting)' },
+                { type: 'Story', idea: 'Poll: "Which outfit for George?"' },
+                { type: 'Story', idea: '"Ask George anything" Q&A' },
+                { type: 'Story', idea: 'This or That: treats edition' },
+            ],
+            stats: {
+                ig_followers: localStorage.getItem('tgb_ig_followers') || '',
+                ig_likes: localStorage.getItem('tgb_ig_likes') || '',
+                tt_followers: localStorage.getItem('tgb_tt_followers') || '',
+                tt_views: localStorage.getItem('tgb_tt_views') || '',
+                tt_likes: localStorage.getItem('tgb_tt_likes') || '',
+            }
+        };
+
+        // ============ INIT ============
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            renderAll();
+            setupTabs();
+            setupNav();
+            updateAnalytics();
+        });
+
+        function loadData() {
+            ['features', 'midtier', 'tiktokAccounts'].forEach(key => {
+                const saved = localStorage.getItem(`tgb_${key}`);
+                if (saved) {
+                    const statuses = JSON.parse(saved);
+                    DATA[key].forEach(item => {
+                        if (statuses[item.account]) item.status = statuses[item.account];
+                    });
+                }
+            });
+        }
+
+        function saveData() {
+            ['features', 'midtier', 'tiktokAccounts'].forEach(key => {
+                const statuses = {};
+                DATA[key].forEach(item => statuses[item.account] = item.status);
+                localStorage.setItem(`tgb_${key}`, JSON.stringify(statuses));
+            });
+        }
+
+        function renderAll() {
+            renderFeatures();
+            renderMidtier();
+            renderTikTokAccounts();
+            renderHashtags();
+            renderContent();
+            updateStats();
+        }
+
+        function renderFeatures() {
+            const container = document.getElementById('featuresList');
+            container.innerHTML = DATA.features.map((f, i) => `
+                <div class="data-row">
+                    <span class="col-idx">${String(i + 1).padStart(2, '0')}</span>
+                    <span class="col-main"><a href="${f.link}" target="_blank">${f.account}</a></span>
+                    <span class="col-followers">${f.followers}</span>
+                    <span class="col-meta">${f.method}</span>
+                    <span><span class="status-badge status-${f.status}" onclick="cycleStatus('features', ${i})">${getStatusLabel(f.status)}</span></span>
+                    <div class="row-actions">
+                        <button class="row-btn" onclick="window.open('${f.link}', '_blank')">↗</button>
+                    </div>
+                </div>
+            `).join('');
+            updateCounts();
+        }
+
+        function renderMidtier() {
+            const container = document.getElementById('midtierList');
+            container.innerHTML = DATA.midtier.map((m, i) => `
+                <div class="data-row">
+                    <span class="col-idx">${String(i + 1).padStart(2, '0')}</span>
+                    <span class="col-main"><a href="https://instagram.com/${m.account.slice(1)}" target="_blank">${m.account}</a></span>
+                    <span class="col-followers">${m.followers}</span>
+                    <span class="col-meta">${m.niche}</span>
+                    <span><span class="status-badge status-${m.status}" onclick="cycleStatus('midtier', ${i})">${getStatusLabel(m.status)}</span></span>
+                    <div class="row-actions">
+                        <button class="row-btn" onclick="window.open('https://instagram.com/${m.account.slice(1)}', '_blank')">↗</button>
+                    </div>
+                </div>
+            `).join('') + `<div class="add-row-btn" onclick="openAddModal('midtier')">+ Add Account</div>`;
+        }
+
+        function renderTikTokAccounts() {
+            const container = document.getElementById('tiktokAccountsList');
+            container.innerHTML = DATA.tiktokAccounts.map((t, i) => `
+                <div class="data-row">
+                    <span class="col-idx">${String(i + 1).padStart(2, '0')}</span>
+                    <span class="col-main"><a href="https://tiktok.com/${t.account}" target="_blank">${t.account}</a></span>
+                    <span class="col-followers">${t.followers}</span>
+                    <span class="col-meta">${t.niche}</span>
+                    <span><span class="status-badge status-${t.status}" onclick="cycleStatus('tiktokAccounts', ${i})">${getStatusLabel(t.status)}</span></span>
+                    <div class="row-actions">
+                        <button class="row-btn" onclick="window.open('https://tiktok.com/${t.account}', '_blank')">↗</button>
+                    </div>
+                </div>
+            `).join('') + `<div class="add-row-btn" onclick="openAddModal('tiktok')">+ Add Account</div>`;
+        }
+
+        function renderHashtags() {
+            const container = document.getElementById('hashtagsList');
+            container.innerHTML = Object.entries(DATA.hashtags).map(([cat, tags]) => `
+                <div class="hashtag-category">
+                    <h4>${cat} <span class="platform-badge platform-ig">IG</span></h4>
+                    <div class="hashtag-grid">${tags.map(tag => `<span class="hashtag-tag" onclick="copyHashtag(this, '${tag}')">${tag}</span>`).join('')}</div>
+                </div>
+            `).join('') + `
+                <div class="hashtag-category">
+                    <h4>TikTok Tags <span class="platform-badge platform-tiktok">TT</span></h4>
+                    <div class="hashtag-grid">${DATA.tiktokHashtags.map(tag => `<span class="hashtag-tag" onclick="copyHashtag(this, '${tag}')">${tag}</span>`).join('')}</div>
+                </div>
+            `;
+        }
+
+        function renderContent() {
+            const container = document.getElementById('contentList');
+            container.innerHTML = DATA.contentIdeas.map(c => `
+                <div class="idea-card">
+                    <div><span class="idea-type">${c.type}</span>${c.idea}</div>
+                    <button class="row-btn" onclick="copyText('${c.idea.replace(/'/g, "\\'")}')">📋</button>
+                </div>
+            `).join('');
+        }
+
+        function getStatusLabel(status) {
+            return { pending: 'Pending', submitted: 'Submitted', featured: 'Featured!', engaged: 'Engaged' }[status] || status;
+        }
+
+        function cycleStatus(type, index) {
+            const statuses = ['pending', 'engaged', 'submitted', 'featured'];
+            const item = DATA[type][index];
+            item.status = statuses[(statuses.indexOf(item.status) + 1) % statuses.length];
+            saveData();
+            renderAll();
+            showToast(`${item.account} → ${getStatusLabel(item.status)}`);
+        }
+
+        function updateCounts() {
+            const submitted = DATA.features.filter(f => f.status !== 'pending').length;
+            document.getElementById('statSubmissions').textContent = `${submitted}/${DATA.features.length}`;
+            const engaged = [...DATA.midtier, ...DATA.tiktokAccounts].filter(m => m.status === 'engaged').length;
+            const total = DATA.midtier.length + DATA.tiktokAccounts.length;
+            document.getElementById('statEngaged').textContent = `${engaged}/${total}`;
+        }
+
+        function updateStats() {
+            document.getElementById('igFollowers').textContent = DATA.stats.ig_followers || '—';
+            document.getElementById('igLikes').textContent = DATA.stats.ig_likes || '—';
+            document.getElementById('ttFollowers').textContent = DATA.stats.tt_followers || '—';
+            document.getElementById('ttViews').textContent = DATA.stats.tt_views || '—';
+            document.getElementById('ttLikes').textContent = DATA.stats.tt_likes || '—';
+
+            if (DATA.stats.ig_followers && DATA.stats.ig_likes) {
+                const f = parseNum(DATA.stats.ig_followers);
+                const l = parseNum(DATA.stats.ig_likes);
+                document.getElementById('igEngagement').textContent = ((l / f) * 100).toFixed(1) + '%';
+            }
+            updateCounts();
+        }
+
+        function parseNum(str) {
+            const n = parseFloat(str.replace(/[^0-9.]/g, ''));
+            if (str.includes('M')) return n * 1000000;
+            if (str.includes('K')) return n * 1000;
+            return n;
+        }
+
+        function editStat(key) {
+            const current = DATA.stats[key];
+            const newValue = prompt(`Enter ${key.replace('_', ' ')}:`, current);
+            if (newValue !== null) {
+                DATA.stats[key] = newValue;
+                localStorage.setItem(`tgb_${key}`, newValue);
+                updateStats();
+                updateAnalytics();
+            }
+        }
+
+        function updateAnalytics() {
+            const igF = parseNum(DATA.stats.ig_followers || '0');
+            const ttF = parseNum(DATA.stats.tt_followers || '0');
+            const total = igF + ttF;
+            document.getElementById('totalFollowers').textContent = total > 0 ? (total > 1000 ? (total/1000).toFixed(1) + 'K' : total) : '—';
+
+            const engaged = [...DATA.midtier, ...DATA.tiktokAccounts].filter(m => m.status === 'engaged').length;
+            document.getElementById('totalEngaged').textContent = engaged;
+
+            const submitted = DATA.features.filter(f => f.status !== 'pending').length;
+            document.getElementById('totalSubmissions').textContent = submitted;
+
+            if (DATA.stats.ig_followers && DATA.stats.ig_likes) {
+                const eng = ((parseNum(DATA.stats.ig_likes) / parseNum(DATA.stats.ig_followers)) * 100).toFixed(1);
+                document.getElementById('engagementRate').textContent = eng + '%';
+            }
+        }
+
+        function setupTabs() {
+            document.querySelectorAll('.panel-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
+                });
+            });
+        }
+
+        function setupNav() {
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                nav.addEventListener('click', () => {
+                    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                    document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+                    nav.classList.add('active');
+                    document.getElementById(`page-${nav.dataset.page}`).classList.add('active');
+                });
+            });
+        }
+
+        function copyHashtag(el, tag) {
+            navigator.clipboard.writeText(tag);
+            el.classList.add('copied');
+            setTimeout(() => el.classList.remove('copied'), 1000);
+            showToast(`Copied: ${tag}`);
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text);
+            showToast(`Copied!`);
+        }
+
+        function copyAllHashtags() {
+            const all = Object.values(DATA.hashtags).flat().join(' ');
+            navigator.clipboard.writeText(all);
+            showToast('Copied 30 IG hashtags!');
+        }
+
+        function copyTikTokHashtags() {
+            navigator.clipboard.writeText(DATA.tiktokHashtags.join(' '));
+            showToast('Copied TikTok hashtags!');
+        }
+
+        function openRandomIdea() {
+            const idea = DATA.contentIdeas[Math.floor(Math.random() * DATA.contentIdeas.length)];
+            showToast(`💡 ${idea.type}: ${idea.idea}`, 5000);
+        }
+
+        function openAddModal(type) {
+            document.getElementById('modalOverlay').classList.add('active');
+            document.getElementById('inputPlatform').value = type === 'tiktok' ? 'tiktok' : 'instagram';
+        }
+
+        function closeModal(e) {
+            if (!e || e.target.id === 'modalOverlay') {
+                document.getElementById('modalOverlay').classList.remove('active');
+            }
+        }
+
+        document.getElementById('modalForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const platform = document.getElementById('inputPlatform').value;
+            const account = document.getElementById('inputAccount').value;
+            const followers = document.getElementById('inputFollowers').value;
+            const niche = document.getElementById('inputNiche').value;
+            const notes = document.getElementById('inputNotes').value;
+
+            const newItem = {
+                account: account.startsWith('@') ? account : '@' + account,
+                followers: followers,
+                niche: niche,
+                status: 'pending',
+                notes: notes
+            };
+
+            if (platform === 'tiktok') {
+                DATA.tiktokAccounts.push(newItem);
+            } else {
+                DATA.midtier.push(newItem);
+            }
+
+            saveData();
+            renderAll();
+            closeModal();
+            showToast(`Added ${account}`);
+            e.target.reset();
+        });
+
+        function exportData() {
+            const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'georgeboy_data.json';
+            a.click();
+            showToast('Data exported!');
+        }
+
+        function showToast(msg, duration = 3000) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = msg;
+            document.getElementById('toastContainer').appendChild(toast);
+            setTimeout(() => toast.remove(), duration);
+        }
+    </script>
+</body>
+</html>
